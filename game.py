@@ -1,6 +1,8 @@
 from numpy import *
 import os, time, random, graphics
 from texttable import Texttable
+from Tkinter import * 
+import tkMessageBox
 
 class game:
 
@@ -100,11 +102,9 @@ class game:
         t.add_rows ([title,["1","Yes"]])
         t.add_rows ([title,["0","No"]])
         print t.draw()
-        while 1:
-            try:
-                first=int(input("Choice : "))
-                break
-            except: print "Please type 1 or 0"
+        g=graphicTTT(self.pixelSize,matrix('2 2 2; 2 2 2; 2 2 2'),1) 
+        first=g.getChoise("I play first", "Artificial intelligence plays first")
+        g.window.close()
         if first: self.currentPlayer=1
         else: self.currentPlayer=0
         self.createPlateau()    #creation of the game plateau
@@ -167,7 +167,7 @@ class game:
             print "Player's turn, please clic on a free cell"
             x,y=self.graphWin.getMove()
             if self.plateau[x,y]!=2:
-                g=self.graphWin.printInfo("Cell already filled, please chose an other one")
+                g=self.graphWin.printInfo("Cell already filled,\n please chose an other one")
                 time.sleep(1)
                 self.graphWin.erase(g)
             else:
@@ -206,7 +206,6 @@ class game:
         while not self.checkWinner():   #play while no winner
             if self.gameOver():
                 return self.endGame()
-            clear()
             self.display()
             if self.currentPlayer:self.humanMove()  #if it's to the player to move
             else: self.AIMove() #if it is to the computer to move
@@ -232,15 +231,14 @@ class game:
         del self.ssg, self.plateau,self.currentPlayer
         self.ssg=None
         self.root=None
-        try:
-            self.graphWin.getMove()
-            self.graphWin.stop()
-            self.graphWin=None
-        except:
-            self.graphWin.stop()
-            self.graphWin=None
-            return
-        return
+        self.graphWin.getMove()
+        self.graphWin.stop()
+        self.graphWin=None
+        g=graphicTTT(self.pixelSize,matrix('2 2 2; 2 2 2; 2 2 2'),1) 
+        suite=g.getChoise("New game", "Exit")
+        g.window.close()
+        if suite==1: self.startGame()
+        
 
     #checks if there is a winner in the game
     def checkWinner(self):
@@ -497,11 +495,14 @@ def clear():
     #pass
     os.system('cls')
 
+    
+
+
 #graphic display class
 class graphicTTT:
 
     #class constructor
-    def __init__(self,pixelSize,plateau):
+    def __init__(self,pixelSize,plateau,grid=None):
         self.window=graphics.GraphWin("Tic Tac Toe",pixelSize,pixelSize)
         self.pixelSize=pixelSize
         self.cellSize=pixelSize/3
@@ -516,8 +517,9 @@ class graphicTTT:
                           6:2,
                           7:2,
                           8:2}  #storing of the plateau information
-        self.drawEmpty()
-        self.update(plateau)
+        if grid==None:
+            self.drawEmpty()
+            self.update(plateau)
 
     #draw the empty plateau (lines and columns)
     def drawEmpty(self):
@@ -527,9 +529,11 @@ class graphicTTT:
             vline = graphics.Line(graphics.Point((self.pixelSize/self.squares) * (i + 1), 0), graphics.Point((self.pixelSize/self.squares) * (i + 1), self.pixelSize))
             vline.draw(self.window)
 
+
     #print a text information over the game interface
-    def printInfo(self, text):
-        info=graphics.Text(graphics.Point(self.pixelSize/2,self.pixelSize/2),text)
+    def printInfo(self, text,pos=None):
+        if pos==None:info=graphics.Text(graphics.Point(self.pixelSize/2,self.pixelSize/2),text)
+        else:info=graphics.Text(pos,text)
         info.setSize(10)
         info.setStyle('bold italic')
         info.setTextColor('Black')
@@ -598,8 +602,25 @@ class graphicTTT:
         x=clickedPoint.getX()//self.cellSize
         y=clickedPoint.getY()//self.cellSize
         return y, x
+
+    #return the choice between the two inputs
+    def getChoise(self,b1,b2):
+        pos1=graphics.Point((self.pixelSize/2),self.pixelSize/4)
+        pos2=graphics.Point((self.pixelSize/2),3*self.pixelSize/4)
+        t1=self.printInfo(b1,pos1)
+        t2=self.printInfo(b2,pos2)
+        hline = graphics.Line(graphics.Point(0, (self.pixelSize/2)), graphics.Point(self.pixelSize,  (self.pixelSize/2)))
+        hline.setFill('black')
+        hline.draw(self.window)
+        x,y=self.getMove()
+        t1.undraw()
+        t2.undraw()
+        hline.undraw()
+        if x*self.cellSize>self.pixelSize/2: return 0
+        else: return 1
   
 # === Run === #
+
 
 game()  #starts the game
 
