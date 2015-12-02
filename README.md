@@ -1,5 +1,5 @@
 # Tic-Tac-Toe
 
-Python program with artificial intelligence implementing MinMax algorithme.
+Python program with artificial intelligence implementing MinMax algorithm.
 
 Graphic interface.
