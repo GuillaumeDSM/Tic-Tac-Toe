@@ -596,7 +596,7 @@ class graphicTTT:
     def stop(self):
         self.window.close()
 
-    #returns the cliced point x and y
+    #returns the clicked point x and y
     def getMove(self):
         clickedPoint=self.window.getMouse()
         x=clickedPoint.getX()//self.cellSize
